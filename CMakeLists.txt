@@ -1,7 +1,7 @@
 # Copyright (c) 2024, hipDNN EP Authors. All rights reserved.
 # Licensed under the MIT License.
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.27)
 project(hipdnn_ep LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -18,24 +18,25 @@ if(NOT THEROCK_DIST)
 endif()
 
 # Add TheRock to CMAKE_PREFIX_PATH
-list(APPEND CMAKE_PREFIX_PATH "${THEROCK_DIST}/lib/cmake")
+list(APPEND CMAKE_PREFIX_PATH "${THEROCK_DIST}")
+# list(APPEND CMAKE_PREFIX_PATH "${THEROCK_DIST}/lib/cmake")
 
 # Third-party dependencies from TheRock (nlohmann-json is required by hipdnn_sdk)
-list(APPEND CMAKE_PREFIX_PATH "${THEROCK_DIST}/../../third-party/nlohmann-json/dist/share/cmake")
+# list(APPEND CMAKE_PREFIX_PATH "${THEROCK_DIST}/../../third-party/nlohmann-json/dist/share/cmake")
 
 # Find HIP from TheRock
 find_package(hip REQUIRED CONFIG)
 
 # Find hipDNN from TheRock
 find_package(hipdnn_frontend CONFIG REQUIRED)
-find_package(hipdnn_backend CONFIG REQUIRED)
+# find_package(hipdnn_backend CONFIG REQUIRED)
 
 # iree-compile is required at runtime by hipDNN backend
-find_program(IREE_COMPILE iree-compile)
-if(NOT IREE_COMPILE)
-  message(FATAL_ERROR "iree-compile not found in PATH. It is required by hipDNN backend for code generation.")
-endif()
-message(STATUS "Found iree-compile: ${IREE_COMPILE}")
+# find_program(IREE_COMPILE iree-compile)
+# if(NOT IREE_COMPILE)
+#   message(FATAL_ERROR "iree-compile not found in PATH. It is required by hipDNN backend for code generation.")
+# endif()
+# message(STATUS "Found iree-compile: ${IREE_COMPILE}")
 
 # ONNXRuntime headers
 set(ONNXRUNTIME_ROOT "$ENV{ONNXRUNTIME_ROOT}" CACHE PATH "Path to ONNXRuntime source")
@@ -43,7 +44,9 @@ if(NOT ONNXRUNTIME_ROOT)
   message(FATAL_ERROR "ONNXRUNTIME_ROOT must be specified. Set it via -DONNXRUNTIME_ROOT=<path> or ONNXRUNTIME_ROOT environment variable.")
 endif()
 
-set(ONNXRUNTIME_INCLUDE_DIR "${ONNXRUNTIME_ROOT}/include/onnxruntime/core/session")
+find_package(onnxruntime CONFIG REQUIRED)
+get_target_property(ONNXRUNTIME_INCLUDE_DIR onnxruntime::onnxruntime INTERFACE_INCLUDE_DIRECTORIES)
+# set(ONNXRUNTIME_INCLUDE_DIR "${ONNXRUNTIME_ROOT}/include/onnxruntime/core/session")
 
 # Verify ONNXRuntime headers exist
 if(NOT EXISTS "${ONNXRUNTIME_INCLUDE_DIR}/onnxruntime_c_api.h")
@@ -73,7 +76,7 @@ target_include_directories(hipdnn_ep
 target_link_libraries(hipdnn_ep
   PRIVATE
     hipdnn_frontend
-    hipdnn_backend
+    # hipdnn_backend
     hip::host
 )
 

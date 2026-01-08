@@ -15,16 +15,16 @@ if(NOT GTest_FOUND)
 endif()
 
 # ONNXRuntime library for testing
-set(ONNXRUNTIME_LIB_DIR "${ONNXRUNTIME_ROOT}/build/RelWithDebInfo" CACHE PATH "ONNXRuntime library directory")
+# set(ONNXRUNTIME_LIB_DIR "${ONNXRUNTIME_ROOT}/build/RelWithDebInfo" CACHE PATH "ONNXRuntime library directory")
 
-find_library(ONNXRUNTIME_LIB onnxruntime
-  HINTS ${ONNXRUNTIME_LIB_DIR}
-)
+# find_library(ONNXRUNTIME_LIB onnxruntime
+#   HINTS ${ONNXRUNTIME_LIB_DIR}
+# )
 
-if(NOT ONNXRUNTIME_LIB)
-  message(WARNING "ONNXRuntime library not found at ${ONNXRUNTIME_LIB_DIR}. Tests will not be built.")
-  return()
-endif()
+# if(NOT ONNXRUNTIME_LIB)
+#   message(WARNING "ONNXRuntime library not found at ${ONNXRUNTIME_LIB_DIR}. Tests will not be built.")
+#   return()
+# endif()
 
 # Test executable
 add_executable(hipdnn_ep_tests
@@ -32,16 +32,17 @@ add_executable(hipdnn_ep_tests
   test_conv.cc
 )
 
-target_include_directories(hipdnn_ep_tests PRIVATE
-  ${ONNXRUNTIME_INCLUDE_DIR}
-)
+# target_include_directories(hipdnn_ep_tests PRIVATE
+#   ${ONNXRUNTIME_INCLUDE_DIR}
+# )
 
 target_link_libraries(hipdnn_ep_tests PRIVATE
   GTest::gtest
   GTest::gtest_main
-  ${ONNXRUNTIME_LIB}
+  # ${ONNXRUNTIME_LIB}
+  onnxruntime::onnxruntime
   hip::host
-  dl
+  # dl
 )
 
 # Copy test model to build directory

@@ -13,7 +13,8 @@
 #include "onnxruntime_cxx_api.h"
 
 #ifndef HIPDNN_EP_LIB_PATH
-#define HIPDNN_EP_LIB_PATH "./libhipdnn_ep.so"
+// #define HIPDNN_EP_LIB_PATH "./libhipdnn_ep.so"
+#define HIPDNN_EP_LIB_PATH "./hipdnn_ep.dll"
 #endif
 
 #ifndef CONV_TEST_MODEL_PATH
@@ -27,9 +28,9 @@ class HipDNNConvTest : public ::testing::Test {
     env_ = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "HipDNNConvTest");
 
     // Register EP
-    const char* lib_path = HIPDNN_EP_LIB_PATH;
+    // const char* lib_path = ORT_TSTR_ON_MACRO(HIPDNN_EP_LIB_PATH);
     OrtStatus* status = Ort::GetApi().RegisterExecutionProviderLibrary(
-        *env_, "HipDNN", lib_path);
+        *env_, "HipDNN", ORT_TSTR_ON_MACRO(HIPDNN_EP_LIB_PATH));
 
     if (status != nullptr) {
       std::string error_msg = Ort::GetApi().GetErrorMessage(status);
@@ -46,6 +47,7 @@ class HipDNNConvTest : public ::testing::Test {
     if (!model_available_) {
       std::cout << "Model not available at: " << CONV_TEST_MODEL_PATH << std::endl;
     }
+    std::cout << "CONV_TEST_MODEL_PATH: " << CONV_TEST_MODEL_PATH << std::endl;
   }
 
   void TearDown() override {
@@ -115,7 +117,7 @@ TEST_F(HipDNNConvTest, BasicConv2D) {
   std::vector<float> cpu_output;
   {
     Ort::SessionOptions session_options;
-    Ort::Session session(*env_, CONV_TEST_MODEL_PATH, session_options);
+    Ort::Session session(*env_, ORT_TSTR_ON_MACRO(CONV_TEST_MODEL_PATH), session_options);
 
     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(
@@ -170,7 +172,7 @@ TEST_F(HipDNNConvTest, BasicConv2D) {
     }
 
     std::cout << "Creating session with HipDNN EP..." << std::endl;
-    Ort::Session session(*env_, CONV_TEST_MODEL_PATH, session_options);
+    Ort::Session session(*env_, ORT_TSTR_ON_MACRO(CONV_TEST_MODEL_PATH), session_options);
     std::cout << "Session created successfully" << std::endl;
 
     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
